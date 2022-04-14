@@ -1,12 +1,8 @@
 ﻿using AccTools.SharedMemory.Models;
 
-using System;
-using System.Collections.Generic;
 using System.IO.MemoryMappedFiles;
-using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
+using System.Timers;
 
 namespace AccTools.SharedMemory {
     public enum ConnectionState {
@@ -15,33 +11,56 @@ namespace AccTools.SharedMemory {
         Connected
     }
 
-    public class AccSharedMemory {
+    public class AccSharedMemory : IDisposable {
         #region Private Fields
-        private ConnectionState _status = ConnectionState.Disconnected;
+        private bool _disposed;
 
         private MemoryMappedFile? _physicsMemory;
         private MemoryMappedFile? _graphicsMemory;
         private MemoryMappedFile? _staticInfoMemory;
+
+        private GameStatus _gameStatus = GameStatus.OFF;
+        private readonly System.Timers.Timer _physicsTimer = new(1000);
+        private readonly System.Timers.Timer _graphicsTimer = new(10);
+        private readonly System.Timers.Timer _staticInfoTimer = new(1000);
         #endregion Private Fields
 
         #region Properties
-        public TimeSpan PhysicsUpdateInterval { get; set; }
+        public ConnectionState Status { get; private set; } = ConnectionState.Disconnected;
 
-        public TimeSpan GraphicsUpdateInterval { get; set; }
+        public double PhysicsUpdateInterval {
+            get => _physicsTimer.Interval;
+            set => _physicsTimer.Interval = value;
+        }
 
-        public TimeSpan StaticInfoUpdateInterval { get; set; }
+        public double GraphicsUpdateInterval {
+            get => _graphicsTimer.Interval;
+            set => _graphicsTimer.Interval = value;
+        }
+
+        public double StaticInfoUpdateInterval {
+            get => _staticInfoTimer.Interval;
+            set => _staticInfoTimer.Interval = value;
+        }
         #endregion Properties
 
         #region Delegates
-        public delegate void PhysicsUpdatedHandler(object sender, PhysicsEventArgs e);
-        public delegate void GraphicsUpdatedHandler(object sender, GraphicsEventArgs e);
-        public delegate void StaticInfoUpdatedHandler(object sender, StaticInfoEventArgs e);
-        public delegate void GameStatusChangedHandler(object sender, GameStatusEventArgs e);
         #endregion Delegates
+
+        #region Events
+        public event PhysicsUpdatedHandler? PhysicsUpdated;
+
+        public event GraphicsUpdatedHandler? GraphicsUpdated;
+
+        public event StaticInfoUpdatedHandler? StaticInfoUpdated;
+
+        public event GameStatusChangedHandler? GameStatusChanged;
+        #endregion Events
 
         #region Constructors
         public AccSharedMemory() { }
-        public AccSharedMemory(TimeSpan physicsUpdateInterval, TimeSpan graphicsUpdateInterval, TimeSpan staticInfoUpdateInterval) {
+
+        public AccSharedMemory(double physicsUpdateInterval, double graphicsUpdateInterval, double staticInfoUpdateInterval) {
             PhysicsUpdateInterval = physicsUpdateInterval;
             GraphicsUpdateInterval = graphicsUpdateInterval;
             StaticInfoUpdateInterval = staticInfoUpdateInterval;
@@ -49,28 +68,72 @@ namespace AccTools.SharedMemory {
         #endregion Constructors
 
         #region Public Methods
-        #endregion Public Methods
+        public void Connect() {
+            if (_disposed) {
+                throw new ObjectDisposedException(nameof(AccSharedMemory));
+            }
 
-        #region Private Methods
-        private void Connect() {
-            if (_status != ConnectionState.Disconnected) {
+            if (Status != ConnectionState.Disconnected) {
                 return;
             }
 
-            _status = ConnectionState.Connecting;
+            Status = ConnectionState.Connecting;
 
-            _physicsMemory = MemoryMappedFile.OpenExisting("Local\\acpmf_physics");
-            _graphicsMemory = MemoryMappedFile.OpenExisting("Local\\acpmf_graphics");
-            _staticInfoMemory = MemoryMappedFile.OpenExisting("Local\\acpmf_static");
+            try {
+                _physicsMemory = MemoryMappedFile.OpenExisting("Local\\acpmf_physics");
+                _graphicsMemory = MemoryMappedFile.OpenExisting("Local\\acpmf_graphics");
+                _staticInfoMemory = MemoryMappedFile.OpenExisting("Local\\acpmf_static");
+            } catch (FileNotFoundException) {
+                throw new AccSharedMemoryException("Could not connect to shared memory. Make sure the game is running.");
+            }
 
-            var physics = ReadMemory<Physics>(_physicsMemory);
-            var graphics = ReadMemory<Graphics>(_graphicsMemory);
-            var staticInfo = ReadMemory<StaticInfo>(_staticInfoMemory);
+            Physics physics = ReadMemory<Physics>(_physicsMemory);
+            OnPhysicsUpdated(physics);
 
-            _status = ConnectionState.Connected;
+            Graphics graphics = ReadMemory<Graphics>(_graphicsMemory);
+            OnGraphicsUpdated(graphics);
+
+            StaticInfo staticInfo = ReadMemory<StaticInfo>(_staticInfoMemory);
+            OnStaticInfoUpdated(staticInfo);
+
+            Status = ConnectionState.Connected;
+
+            _physicsTimer.Elapsed += PhysicsTimer_Elapsed;
+            _graphicsTimer.Elapsed += GraphicsTimer_Elapsed;
+            _staticInfoTimer.Elapsed += StaticInfoTimer_Elapsed;
+
+            _physicsTimer.Start();
+            _graphicsTimer.Start();
+            _staticInfoTimer.Start();
         }
 
-        private T ReadMemory<T>(MemoryMappedFile memory) {
+        public void Disconnect() {
+            if (_disposed) {
+                throw new ObjectDisposedException(nameof(AccSharedMemory));
+            }
+
+            if (Status != ConnectionState.Connected) {
+                return;
+            }
+
+            Status = ConnectionState.Disconnected;
+
+            _physicsTimer.Elapsed -= PhysicsTimer_Elapsed;
+            _graphicsTimer.Elapsed -= GraphicsTimer_Elapsed;
+            _staticInfoTimer.Elapsed -= StaticInfoTimer_Elapsed;
+
+            _physicsTimer.Stop();
+            _graphicsTimer.Stop();
+            _staticInfoTimer.Stop();
+
+            _physicsMemory?.Dispose();
+            _graphicsMemory?.Dispose();
+            _staticInfoMemory?.Dispose();
+        }
+        #endregion Public Methods
+
+        #region Private Methods
+        private static T ReadMemory<T>(MemoryMappedFile memory) {
             using MemoryMappedViewStream? stream = memory.CreateViewStream();
             using BinaryReader reader = new(stream);
 
@@ -90,6 +153,73 @@ namespace AccTools.SharedMemory {
                 handle.Free();
             }
         }
+
+        private void OnPhysicsUpdated(Physics physics) {
+            PhysicsUpdated?.Invoke(this, new PhysicsEventArgs(physics));
+        }
+
+        private void OnGraphicsUpdated(Graphics graphics) {
+            if (graphics.Status != _gameStatus) {
+                _gameStatus = graphics.Status;
+                GameStatusChanged?.Invoke(this, new GameStatusEventArgs(graphics.Status));
+            }
+
+            GraphicsUpdated?.Invoke(this, new GraphicsEventArgs(graphics));
+        }
+
+        private void OnStaticInfoUpdated(StaticInfo staticInfo) {
+            StaticInfoUpdated?.Invoke(this, new StaticInfoEventArgs(staticInfo));
+        }
         #endregion Private Methods
+
+        #region Event Handler
+        private void PhysicsTimer_Elapsed(object? sender, ElapsedEventArgs e) {
+            if (Status != ConnectionState.Connected || _physicsMemory is null) {
+                return;
+            }
+
+            Physics physics = ReadMemory<Physics>(_physicsMemory);
+            OnPhysicsUpdated(physics);
+        }
+
+        private void GraphicsTimer_Elapsed(object? sender, ElapsedEventArgs e) {
+            if (Status != ConnectionState.Connected || _graphicsMemory is null) {
+                return;
+            }
+
+            Graphics graphics = ReadMemory<Graphics>(_graphicsMemory);
+            OnGraphicsUpdated(graphics);
+        }
+
+        private void StaticInfoTimer_Elapsed(object? sender, ElapsedEventArgs e) {
+            if (Status != ConnectionState.Connected || _staticInfoMemory is null) {
+                return;
+            }
+
+            StaticInfo staticInfo = ReadMemory<StaticInfo>(_staticInfoMemory);
+            OnStaticInfoUpdated(staticInfo);
+        }
+        #endregion Event Handler
+
+        #region IDisposable
+        protected virtual void Dispose(bool disposing) {
+            if (!_disposed) {
+                if (disposing) {
+                    Disconnect();
+
+                    _physicsTimer.Dispose();
+                    _graphicsTimer.Dispose();
+                    _staticInfoTimer.Dispose();
+                }
+
+                _disposed = true;
+            }
+        }
+
+        public void Dispose() {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+        #endregion IDisposable
     }
 }

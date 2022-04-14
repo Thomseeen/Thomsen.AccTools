@@ -10,4 +10,8 @@
     <EnforceCodeStyleInBuild>True</EnforceCodeStyleInBuild>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\AccTools.SharedMemory\AccTools.SharedMemory.csproj" />
+  </ItemGroup>
+
 </Project>

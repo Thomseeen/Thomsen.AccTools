@@ -1,40 +1,40 @@
 ﻿using System.Runtime.InteropServices;
 
 namespace AccTools.SharedMemory.Models {
-    public enum AC_FLAG_TYPE {
-        AC_NO_FLAG = 0,
-        AC_BLUE_FLAG = 1,
-        AC_YELLOW_FLAG = 2,
-        AC_BLACK_FLAG = 3,
-        AC_WHITE_FLAG = 4,
-        AC_CHECKERED_FLAG = 5,
-        AC_PENALTY_FLAG = 6
+    public enum FlagType {
+        NO_FLAG = 0,
+        BLUE_FLAG = 1,
+        YELLOW_FLAG = 2,
+        BLACK_FLAG = 3,
+        WHITE_FLAG = 4,
+        CHECKERED_FLAG = 5,
+        PENALTY_FLAG = 6
     }
 
-    public enum AC_STATUS {
-        AC_OFF = 0,
-        AC_REPLAY = 1,
-        AC_LIVE = 2,
-        AC_PAUSE = 3
+    public enum GameStatus {
+        OFF = 0,
+        REPLAY = 1,
+        LIVE = 2,
+        PAUSE = 3
     }
 
-    public enum AC_SESSION_TYPE {
-        AC_UNKNOWN = -1,
-        AC_PRACTICE = 0,
-        AC_QUALIFY = 1,
-        AC_RACE = 2,
-        AC_HOTLAP = 3,
-        AC_TIME_ATTACK = 4,
-        AC_DRIFT = 5,
-        AC_DRAG = 6
+    public enum SessionType {
+        UNKNOWN = -1,
+        PRACTICE = 0,
+        QUALIFY = 1,
+        RACE = 2,
+        HOTLAP = 3,
+        TIME_ATTACK = 4,
+        DRIFT = 5,
+        DRAG = 6
     }
 
     [StructLayout(LayoutKind.Sequential, Pack = 4, CharSet = CharSet.Unicode)]
     [Serializable]
     public struct Graphics {
         public int PacketId;
-        public AC_STATUS Status;
-        public AC_SESSION_TYPE Session;
+        public GameStatus Status;
+        public SessionType Session;
         [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 15)]
         public string CurrentTime;
         [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 15)]
@@ -63,7 +63,7 @@ namespace AccTools.SharedMemory.Models {
         public float[] CarCoordinates;
 
         public float PenaltyTime;
-        public AC_FLAG_TYPE Flag;
+        public FlagType Flag;
         public int IdealLineOn;
 
         // since 1.5
