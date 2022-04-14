@@ -29,7 +29,8 @@ namespace AccTools.Tester {
                 acc.Disconnect();
 
                 Console.WriteLine("Disconnected.");
-                Environment.Exit(0);
+
+                _isStopped.Set();
             };
 
             _isStopped.WaitOne();
