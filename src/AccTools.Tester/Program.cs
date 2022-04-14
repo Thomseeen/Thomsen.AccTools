@@ -2,7 +2,7 @@
 
 namespace AccTools.Tester {
     internal class Program {
-        private static AutoResetEvent _isStopped = new(false);
+        private static readonly AutoResetEvent _isStopped = new(false);
 
         private static async Task<int> Main(string[] args) {
             AccSharedMemory acc = new();
