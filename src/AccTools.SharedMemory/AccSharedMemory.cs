@@ -68,35 +68,45 @@ namespace AccTools.SharedMemory {
         #endregion Constructors
 
         #region Public Methods
-        public void Connect() {
+        public async Task ConnectAsync(CancellationToken token) {
             if (_disposed) {
                 throw new ObjectDisposedException(nameof(AccSharedMemory));
             }
 
-            if (Status != ConnectionState.Disconnected) {
+            if (Status == ConnectionState.Connected) {
                 return;
+            }
+
+            if (Status == ConnectionState.Connecting) {
+                throw new InvalidOperationException("Already connecting.");
             }
 
             Status = ConnectionState.Connecting;
 
-            try {
-                _physicsMemory = MemoryMappedFile.OpenExisting("Local\\acpmf_physics");
-                _graphicsMemory = MemoryMappedFile.OpenExisting("Local\\acpmf_graphics");
-                _staticInfoMemory = MemoryMappedFile.OpenExisting("Local\\acpmf_static");
-            } catch (FileNotFoundException) {
-                throw new AccSharedMemoryException("Could not connect to shared memory. Make sure the game is running.");
+            while (Status != ConnectionState.Connected) {
+                try {
+                    _physicsMemory = MemoryMappedFile.OpenExisting("Local\\acpmf_physics");
+                    _graphicsMemory = MemoryMappedFile.OpenExisting("Local\\acpmf_graphics");
+                    _staticInfoMemory = MemoryMappedFile.OpenExisting("Local\\acpmf_static");
+
+                    Status = ConnectionState.Connected;
+
+                    Physics physics = ReadMemory<Physics>(_physicsMemory);
+                    OnPhysicsUpdated(physics);
+
+                    Graphics graphics = ReadMemory<Graphics>(_graphicsMemory);
+                    OnGraphicsUpdated(graphics);
+
+                    StaticInfo staticInfo = ReadMemory<StaticInfo>(_staticInfoMemory);
+                    OnStaticInfoUpdated(staticInfo);
+                } catch (FileNotFoundException) {
+                    try {
+                        await Task.Delay(100, token);
+                    } catch (TaskCanceledException) {
+                        return;
+                    }
+                }
             }
-
-            Physics physics = ReadMemory<Physics>(_physicsMemory);
-            OnPhysicsUpdated(physics);
-
-            Graphics graphics = ReadMemory<Graphics>(_graphicsMemory);
-            OnGraphicsUpdated(graphics);
-
-            StaticInfo staticInfo = ReadMemory<StaticInfo>(_staticInfoMemory);
-            OnStaticInfoUpdated(staticInfo);
-
-            Status = ConnectionState.Connected;
 
             _physicsTimer.Elapsed += PhysicsTimer_Elapsed;
             _graphicsTimer.Elapsed += GraphicsTimer_Elapsed;
@@ -112,8 +122,12 @@ namespace AccTools.SharedMemory {
                 throw new ObjectDisposedException(nameof(AccSharedMemory));
             }
 
-            if (Status != ConnectionState.Connected) {
+            if (Status == ConnectionState.Disconnected) {
                 return;
+            }
+
+            if (Status == ConnectionState.Connecting) {
+                throw new InvalidOperationException("Can't disconnect while connecting.");
             }
 
             Status = ConnectionState.Disconnected;
@@ -205,11 +219,17 @@ namespace AccTools.SharedMemory {
         protected virtual void Dispose(bool disposing) {
             if (!_disposed) {
                 if (disposing) {
-                    Disconnect();
+                    if (Status == ConnectionState.Connected) {
+                        Disconnect();
+                    }
 
                     _physicsTimer.Dispose();
                     _graphicsTimer.Dispose();
                     _staticInfoTimer.Dispose();
+
+                    _physicsMemory?.Dispose();
+                    _graphicsMemory?.Dispose();
+                    _staticInfoMemory?.Dispose();
                 }
 
                 _disposed = true;

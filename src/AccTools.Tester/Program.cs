@@ -2,10 +2,10 @@
 
 namespace AccTools.Tester {
     internal class Program {
-        private static readonly AutoResetEvent _isStopped = new(false);
+        private static async Task Main(string[] args) {
+            CancellationTokenSource cts = new();
 
-        private static async Task<int> Main(string[] args) {
-            AccSharedMemory acc = new();
+            using AccSharedMemory acc = new();
 
             acc.GameStatusChanged += (sender, e) => {
                 Console.WriteLine($"Game status changed to {e.GameStatus}.");
@@ -15,27 +15,23 @@ namespace AccTools.Tester {
                 Console.WriteLine($"Static info updated. {e.StaticInfo.CarModel} on {e.StaticInfo.Track}.");
             };
 
-            while (acc.Status != ConnectionState.Connected) {
-                try {
-                    acc.Connect();
-                } catch (AccSharedMemoryException) {
-                    await Task.Delay(100);
-                }
-            }
-
-            Console.WriteLine("Connected.");
-
             Console.CancelKeyPress += (sender, e) => {
-                acc.Disconnect();
+                Console.WriteLine("Cancelling...");
 
-                Console.WriteLine("Disconnected.");
-
-                _isStopped.Set();
+                cts.Cancel();
             };
 
-            _isStopped.WaitOne();
+            Console.WriteLine("Connecting...");
 
-            return 0;
+            await acc.ConnectAsync(cts.Token);
+
+            Console.WriteLine("... Connected");
+
+            if (!cts.Token.IsCancellationRequested) {
+                cts.Token.WaitHandle.WaitOne();
+            }
+
+            Environment.Exit(0);
         }
     }
 }
