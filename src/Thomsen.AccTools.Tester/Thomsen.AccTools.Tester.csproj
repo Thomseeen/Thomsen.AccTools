@@ -11,7 +11,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\AccTools.SharedMemory\AccTools.SharedMemory.csproj" />
+    <ProjectReference Include="..\Thomsen.AccTools.SharedMemory\Thomsen.AccTools.SharedMemory.csproj" />
   </ItemGroup>
 
 </Project>
