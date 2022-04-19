@@ -1,4 +1,5 @@
-﻿using AccTools.SharedMemory.Models;
+﻿
+using Thomsen.AccTools.SharedMemory.Models;
 
 namespace AccTools.SharedMemory {
     public delegate void StaticInfoUpdatedHandler(object sender, StaticInfoEventArgs e);

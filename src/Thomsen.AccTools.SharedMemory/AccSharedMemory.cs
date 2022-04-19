@@ -1,10 +1,12 @@
-﻿using AccTools.SharedMemory.Models;
+﻿using AccTools.SharedMemory;
 
 using System.IO.MemoryMappedFiles;
 using System.Runtime.InteropServices;
 using System.Timers;
 
-namespace AccTools.SharedMemory {
+using Thomsen.AccTools.SharedMemory.Models;
+
+namespace Thomsen.AccTools.SharedMemory {
     public enum ConnectionState {
         Disconnected,
         Connecting,

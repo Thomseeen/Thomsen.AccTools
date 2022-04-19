@@ -1,6 +1,7 @@
-﻿using System.Runtime.InteropServices;
+﻿
+using System.Runtime.InteropServices;
 
-namespace AccTools.SharedMemory.Models {
+namespace Thomsen.AccTools.SharedMemory.Models {
     public enum FlagType {
         NO_FLAG = 0,
         BLUE_FLAG = 1,

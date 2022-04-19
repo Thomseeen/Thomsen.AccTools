@@ -1,6 +1,7 @@
-﻿using AccTools.SharedMemory;
+﻿
+using Thomsen.AccTools.SharedMemory;
 
-namespace AccTools.Tester {
+namespace Thomsen.AccTools.Tester {
     internal class Program {
         private static async Task Main(string[] args) {
             CancellationTokenSource cts = new();

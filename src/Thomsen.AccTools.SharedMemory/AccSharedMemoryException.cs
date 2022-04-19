@@ -1,4 +1,4 @@
-﻿namespace AccTools.SharedMemory {
+﻿namespace Thomsen.AccTools.SharedMemory {
     [Serializable]
     public class AccSharedMemoryException : Exception {
         public AccSharedMemoryException() { }

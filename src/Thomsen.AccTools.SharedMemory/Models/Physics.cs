@@ -1,6 +1,7 @@
-﻿using System.Runtime.InteropServices;
+﻿
+using System.Runtime.InteropServices;
 
-namespace AccTools.SharedMemory.Models {
+namespace Thomsen.AccTools.SharedMemory.Models {
 
     [StructLayout(LayoutKind.Sequential)]
     public struct Coordinates {
