@@ -3,9 +3,17 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.1.32407.343
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Thomsen.AccTools.Tester", "src\Thomsen.AccTools.Tester\Thomsen.AccTools.Tester.csproj", "{7A22FB0B-0CC8-41D8-A8D3-0E587A037C27}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Thomsen.AccTools.Tester", "src\Thomsen.AccTools.Tester\Thomsen.AccTools.Tester.csproj", "{7A22FB0B-0CC8-41D8-A8D3-0E587A037C27}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Thomsen.AccTools.SharedMemory", "src\Thomsen.AccTools.SharedMemory\Thomsen.AccTools.SharedMemory.csproj", "{152696B2-A02A-4490-AB4A-59704964B47F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Thomsen.AccTools.SharedMemory", "src\Thomsen.AccTools.SharedMemory\Thomsen.AccTools.SharedMemory.csproj", "{152696B2-A02A-4490-AB4A-59704964B47F}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{99030CF1-D746-4505-83A5-CEE19944DE3E}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+		build\cleanup.py = build\cleanup.py
+		Directory.Build.props = Directory.Build.props
+		README.md = README.md
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

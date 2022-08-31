@@ -1,14 +1,14 @@
 ﻿
 using Thomsen.AccTools.SharedMemory.Models;
 
-namespace AccTools.SharedMemory {
-    public delegate void PhysicsUpdatedHandler(object sender, PhysicsEventArgs e);
+namespace AccTools.SharedMemory;
 
-    public class PhysicsEventArgs : EventArgs {
-        public Physics Physics { get; private set; }
+public delegate void PhysicsUpdatedHandler(object sender, PhysicsEventArgs e);
 
-        public PhysicsEventArgs(Physics physics) {
-            Physics = physics;
-        }
+public class PhysicsEventArgs : EventArgs {
+    public Physics Physics { get; private set; }
+
+    public PhysicsEventArgs(Physics physics) {
+        Physics = physics;
     }
 }

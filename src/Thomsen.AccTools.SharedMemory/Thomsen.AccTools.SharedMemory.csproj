@@ -1,10 +1,33 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>net6.0-windows</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
-    <BaseOutputPath>..\..\bin\</BaseOutputPath>
-  </PropertyGroup>
+    <PropertyGroup>
+        <TargetFramework>netstandard2.0</TargetFramework>
+        <VersionPrefix>1.0.0</VersionPrefix>
+        <Title>Assetto Corsa Shared Memory API</Title>
+        <Description>
+            API for interfacing with Assetto Corsa and Assetto Corsa Competizione Shared Memory.
+            This API allows for async connection check and event based updates.
+        </Description>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+        <PackageTags>Assetto Corsa; Assetto Corsa Competizione; AC; ACC; Shared Memory; Telemetry</PackageTags>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <PackageIcon>ac.jpg</PackageIcon>
+        <GenerateDocumentationFile>True</GenerateDocumentationFile>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <None Include="..\..\.editorconfig" Link=".editorconfig" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Update="ac.jpg">
+            <Pack>True</Pack>
+            <PackagePath>\</PackagePath>
+        </None>
+        <None Update="README.md">
+            <Pack>True</Pack>
+            <PackagePath>\</PackagePath>
+        </None>
+    </ItemGroup>
 
 </Project>

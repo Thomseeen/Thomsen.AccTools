@@ -1,38 +1,54 @@
 ﻿
 using Thomsen.AccTools.SharedMemory;
 
-namespace Thomsen.AccTools.Tester {
-    internal class Program {
-        private static async Task Main(string[] args) {
-            CancellationTokenSource cts = new();
+namespace Thomsen.AccTools.Tester;
 
-            using AccSharedMemory acc = new();
+internal class Program {
+    private static async Task Main(string[] args) {
+        CancellationTokenSource cts = new();
 
-            acc.GameStatusChanged += (sender, e) => {
-                Console.WriteLine($"Game status changed to {e.GameStatus}.");
-            };
+        // Initialize the API
+        using AccSharedMemory acc = new();
 
-            acc.StaticInfoUpdated += (sender, e) => {
-                Console.WriteLine($"Static info updated. {e.StaticInfo.CarModel} on {e.StaticInfo.Track}.");
-            };
+        // Subscribe the event for GameStatusChanged and write some example data to stdout
+        acc.GameStatusChanged += (sender, e) => {
+            Console.WriteLine($"Game status changed to {e.GameStatus}.");
+        };
 
-            Console.CancelKeyPress += (sender, e) => {
-                Console.WriteLine("Cancelling...");
+        // Subscribe the event for StaticInfoUpdated and write some example data to stdout
+        acc.StaticInfoUpdated += (sender, e) => {
+            Console.WriteLine($"Static info updated: {e.StaticInfo.CarModel} on {e.StaticInfo.Track}.");
+        };
 
-                cts.Cancel();
-            };
+        // Subscribe the event for PhysicsUpdated and write some example data to stdout
+        acc.PhysicsUpdated += (sender, e) => {
+            Console.WriteLine($"Physics updated: Speed: {e.Physics.SpeedKmh}.");
+        };
 
-            Console.WriteLine("Connecting...");
+        // Subscribe the event for GraphicsUpdated and write some example data to stdout
+        acc.GraphicsUpdated += (sender, e) => {
+            Console.WriteLine($"Graphics updated: In Pits: {e.Graphics.IsInPit}.");
+        };
 
-            await acc.ConnectAsync(cts.Token);
+        // Subscribe to ctrl+c event on the console to cancel the program
+        Console.CancelKeyPress += (sender, e) => {
+            Console.WriteLine("Cancelling...");
 
-            Console.WriteLine("... Connected");
+            cts.Cancel();
+        };
 
-            if (!cts.Token.IsCancellationRequested) {
-                cts.Token.WaitHandle.WaitOne();
-            }
+        // Wait for connection to the game (game startup)
+        Console.WriteLine("Connecting...");
 
-            Environment.Exit(0);
+        await acc.ConnectAsync(cts.Token);
+
+        Console.WriteLine("... Connected");
+
+        // Wait till program canceled
+        if (!cts.Token.IsCancellationRequested) {
+            cts.Token.WaitHandle.WaitOne();
         }
+
+        Environment.Exit(0);
     }
 }
