@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Thomsen.AccTools.SharedMemory.Models;
+﻿namespace Thomsen.AccTools.SharedMemory.Models;
 
 public enum TrackGripStatus {
     GREEN = 0,

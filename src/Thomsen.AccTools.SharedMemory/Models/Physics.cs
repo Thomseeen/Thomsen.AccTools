@@ -1,7 +1,4 @@
-﻿
-using System.Diagnostics;
-using System;
-using System.Runtime.InteropServices;
+﻿using System.Runtime.InteropServices;
 
 namespace Thomsen.AccTools.SharedMemory.Models;
 

@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO.MemoryMappedFiles;
+﻿using System.IO.MemoryMappedFiles;
 using System.Runtime.InteropServices;
-using System.Text;
-
-using Thomsen.AccTools.SharedMemory.Models;
 
 namespace Thomsen.AccTools.SharedMemory;
 

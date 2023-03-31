@@ -1,8 +1,4 @@
-﻿using System.IO.MemoryMappedFiles;
-using System.Runtime.InteropServices;
-using System.Timers;
-
-using Thomsen.AccTools.SharedMemory.Models;
+﻿using Thomsen.AccTools.SharedMemory.Models;
 
 namespace Thomsen.AccTools.SharedMemory;
 

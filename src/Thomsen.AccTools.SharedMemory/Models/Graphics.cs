@@ -1,11 +1,4 @@
-﻿
-using System.Collections.Generic;
-using System.ComponentModel;
-using System;
-using System.Runtime.InteropServices;
-using System.Security.Cryptography;
-
-using static System.Net.Mime.MediaTypeNames;
+﻿using System.Runtime.InteropServices;
 
 namespace Thomsen.AccTools.SharedMemory.Models;
 
