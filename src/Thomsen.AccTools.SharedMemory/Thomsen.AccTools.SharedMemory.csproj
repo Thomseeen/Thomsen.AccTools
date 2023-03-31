@@ -2,7 +2,7 @@
 
     <PropertyGroup>
         <TargetFramework>netstandard2.0</TargetFramework>
-        <VersionPrefix>1.0.0</VersionPrefix>
+        <VersionPrefix>1.1.0</VersionPrefix>
         <Title>Assetto Corsa Shared Memory API</Title>
         <Description>
             API for interfacing with Assetto Corsa and Assetto Corsa Competizione Shared Memory.
