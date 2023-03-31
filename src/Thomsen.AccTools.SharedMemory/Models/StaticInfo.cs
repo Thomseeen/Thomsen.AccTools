@@ -10,8 +10,6 @@ public struct StaticInfo {
     public string SMVersion;
     [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 15)]
     public string ACVersion;
-
-    // session static info
     public int NumberOfSessions;
     public int NumCars;
     [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 33)]
@@ -24,23 +22,16 @@ public struct StaticInfo {
     public string PlayerSurname;
     [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 33)]
     public string PlayerNick;
-
     public int SectorCount;
-
-    // car static info
     public float MaxTorque;
     public float MaxPower;
     public int MaxRpm;
     public float MaxFuel;
-    [MarshalAs(UnmanagedType.ByValArray, SizeConst = 4)]
-    public float[] SuspensionMaxTravel;
-    [MarshalAs(UnmanagedType.ByValArray, SizeConst = 4)]
-    public float[] TyreRadius;
-
-    // since 1.5
+    public TyreStat SuspensionMaxTravel;
+    public TyreStat TyreRadius;
     public float MaxTurboBoost;
-    public float Deprecated1; // AirTemp since 1.6 in physic
-    public float Deprecated2; // RoadTemp since 1.6 in physic
+    public float Deprecated1;
+    public float Deprecated2;
     public int PenaltiesEnabled;
     public float AidFuelRate;
     public float AidTireRate;
@@ -49,24 +40,16 @@ public struct StaticInfo {
     public float AidStability;
     public int AidAutoClutch;
     public int AidAutoBlip;
-
-    // since 1.7.1
     public int HasDRS;
     public int HasERS;
     public int HasKERS;
     public float KersMaxJoules;
     public int EngineBrakeSettingsCount;
     public int ErsPowerControllerCount;
-
-    // since 1.7.2
     public float TrackSPlineLength;
     [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 15)]
     public string TrackConfiguration;
-
-    // since 1.10.2
     public float ErsMaxJ;
-
-    // since 1.13
     public int IsTimedRace;
     public int HasExtraLap;
     [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 33)]
@@ -74,4 +57,9 @@ public struct StaticInfo {
     public int ReversedGridPositions;
     public int PitWindowStart;
     public int PitWindowEnd;
+    public int IsOnline;
+    [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 33)]
+    public string DryTyresName;
+    [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 33)]
+    public string WetTyresName;
 }

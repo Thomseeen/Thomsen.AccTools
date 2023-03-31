@@ -10,24 +10,19 @@ internal class Program {
         // Initialize the API
         using AccSharedMemory acc = new();
 
-        // Subscribe the event for GameStatusChanged and write some example data to stdout
-        acc.GameStatusChanged += (sender, e) => {
-            Console.WriteLine($"Game status changed to {e.GameStatus}.");
-        };
-
         // Subscribe the event for StaticInfoUpdated and write some example data to stdout
         acc.StaticInfoUpdated += (sender, e) => {
-            Console.WriteLine($"Static info updated: {e.StaticInfo.CarModel} on {e.StaticInfo.Track}.");
+            Console.WriteLine($"Static info updated: {e.Data.CarModel} on {e.Data.Track}.");
         };
 
         // Subscribe the event for PhysicsUpdated and write some example data to stdout
         acc.PhysicsUpdated += (sender, e) => {
-            Console.WriteLine($"Physics updated: Speed: {e.Physics.SpeedKmh}.");
+            Console.WriteLine($"Physics updated: Speed: {e.Data.SpeedKmh}.");
         };
 
         // Subscribe the event for GraphicsUpdated and write some example data to stdout
         acc.GraphicsUpdated += (sender, e) => {
-            Console.WriteLine($"Graphics updated: In Pits: {e.Graphics.IsInPit}.");
+            Console.WriteLine($"Graphics updated: In Pits: {e.Data.IsInPit}, In Pit Lane: {e.Data.IsInPitLane}, Flag: {e.Data.Flag}, LineOn: {e.Data.IdealLineOn}, Cars: {e.Data.ActiveCars}.");
         };
 
         // Subscribe to ctrl+c event on the console to cancel the program
